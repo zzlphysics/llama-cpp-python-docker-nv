@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  cuda-llama-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llama_cpp_cuda
+    container_name: cuda-llama-server-container
+    deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+                count: 1
+                capabilities: [gpu]
+    volumes:
+      - /path/to/model:/var/model
+      - ./config.json:/var/model/config.json
+    cap_add:
+      - SYS_RESOURCE
+    environment:
+      - HOST=0.0.0.0
+      - CUDA_DOCKER_ARCH=all
+      - LLAMA_CUBLAS=1
+      - USE_MLOCK=0
+    ports:
+      - "8080:8080"  # Assuming llama_cpp.server runs on port 8000, adjust if necessary
+    restart: always
